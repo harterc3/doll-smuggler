@@ -35,6 +35,20 @@
 	]
 )
 
+(def dolls3
+	[
+		{ :name "luke"		:weight 1	:value 150 } 
+		{ :name "anthony"	:weight 2	:value 35 }  
+		{ :name "candice"	:weight 2	:value 200 } 
+		{ :name "dorothy"	:weight 1	:value 160 } 
+	]
+)
+
+(def dolls4
+	[
+	]
+)
+
 (deftest smuggle_calculate_for_dolls1
 	(testing
 		"Test algorithm against 'dolls1' data"
@@ -74,7 +88,7 @@
 	)
 )
 
-(deftest parse_csv_for_dolls1
+(deftest parse_csv_for_dolls2
 	(testing
 		"Testing csv parsing functions for 'dolls2'"
 		(let [csv_result (read-csv "./input/dolls2.csv")]
@@ -83,3 +97,49 @@
 	)
 )
 
+(deftest smuggle_calculate_for_dolls3
+	(testing
+		"Test algorithm against 'dolls3' data"
+		(let [[inds] (smuggle_calculate (-> dolls3 count dec) 10 dolls3)]
+			(is (= (set inds) #{ 0 1 2 3}))
+			(is (= (reduce + (map (comp :weight dolls3) inds)) 6))
+		)
+	)
+)
+
+(deftest smuggle_calculate_for_dolls4
+	(testing
+		"Test algorithm against 'dolls4' data"
+		(let [[inds] (smuggle_calculate (-> dolls4 count dec) 0 dolls4)]
+			(is (= (set inds) #{}))
+			(is (= (reduce + (map (comp :weight dolls4) inds)) 0))
+		)
+	)
+)
+
+(deftest parse_csv_for_dolls3
+	(testing
+		"Testing csv parsing functions for 'dolls3'"
+		(let [csv_result (read-csv "./input/dolls3.csv")]
+			(is (= csv_result dolls3))
+		)
+	)
+)
+
+(deftest parse_csv_for_dolls4
+	(testing
+		"Testing csv parsing functions for 'dolls4'"
+		(let [csv_result (read-csv "./input/dolls4.csv")]
+			(is (= csv_result dolls4))
+		)
+	)
+)
+
+(deftest read_csv_for_fake_file
+	(testing
+		"Open file that doesn't exist should not crash program"
+		(let [csv_result (read-csv "blahh.csv")]
+			(is (= csv_result nil))
+		)
+	)
+)

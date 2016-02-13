@@ -1,5 +1,6 @@
 (ns doll-smuggler.core
 	(:require [clojure-csv.core :refer [parse-csv]]
+		[clojure.java.io :as io]
 		[clojure.string :as string]
 		[clojure.tools.cli :refer [parse-opts]])
 	(:use clojure.java.io)
@@ -36,10 +37,14 @@
   )
 
 (defn read-csv [fname]
-	(with-open [file (reader fname)]
-		(doall (for [line (line-seq file)]
-			(parse-row line)
-		))
+	(cond
+		(not (.exists (io/file fname))) nil
+		:else
+		(with-open [file (reader fname)]
+			(doall (for [line (line-seq file)]
+				(parse-row line)
+			))
+		)
 	)
 )
 
@@ -72,15 +77,18 @@
 			(:help options) (exit 0 summary)
 			errors (exit 1 (error-msg errors))
 		)
-		(let [dolls (read-csv (:file options))
-			[doll_inds total_value] (smuggle_calculate (- (count dolls) 1) (:weight options) dolls)
-			valuable_dolls (map (partial nth dolls) doll_inds)]
-			(println "Doll names:")
-			(doseq [name (map :name valuable_dolls)]
-  				(println name)
+		(let [dolls (read-csv (:file options))]
+			(cond
+				(= dolls nil) (exit 0 "Given file did not exist or did not have readable data"))
+			(let [[doll_inds total_value] (smuggle_calculate (- (count dolls) 1) (:weight options) dolls)
+				valuable_dolls (map (partial nth dolls) doll_inds)]
+				(println "Doll names:")
+				(doseq [name (map :name valuable_dolls)]
+	  				(println name)
+				)
+				(println "Total value:" (reduce + (map :value valuable_dolls)))
+				(println "Total weight:" (reduce + (map :weight valuable_dolls)))
 			)
-			(println "Total value:" (reduce + (map :value valuable_dolls)))
-			(println "Total weight:" (reduce + (map :weight valuable_dolls)))
 		)	
 	)
 )
