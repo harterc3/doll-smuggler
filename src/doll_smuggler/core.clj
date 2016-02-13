@@ -26,16 +26,19 @@
 	)
 )
 
+; turn string into integer
 (defn parse-int [s]
    (Integer. (re-find  #"\d+" s ))
 )
 
+; parse one row from file into [:name :weight :value] map
 (defn parse-row [row]
   (let [v (first (parse-csv row))]
     (zipmap [:name :weight :value] [(get v 0) (parse-int (get v 1)) (parse-int(get v 2))])
     )
   )
 
+; attempt to open file and read line by line
 (defn read-csv [fname]
 	(cond
 		(not (.exists (io/file fname))) nil
@@ -71,6 +74,7 @@
 	)
 )
 
+; io handling
 (defn -main [& args]
 	(let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
 		(cond
